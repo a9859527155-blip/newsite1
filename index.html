@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Безопасность (CSP) -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https://images.unsplash.com; connect-src 'self';">
+    <!-- Настройка безопасности: разрешаем стили и скрипты только с этого сайта -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src * data:; connect-src 'self';">
     <meta http-equiv="X-Frame-Options" content="DENY">
     <title>Apex Detailing — Премиальный автосервис</title>
     <style>
@@ -12,23 +12,38 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { scroll-behavior: smooth; }
         body {
-            background-color: #0a0a0a;
             color: #e0e0e0;
             font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
             overflow-x: hidden;
-            cursor: none;
+            /* Стандартный курсор ВСЕГДА виден */
+        }
+
+        /* === ИНТЕРАКТИВНЫЙ ПЕРЕЛИВАЮЩИЙСЯ ФОН === */
+        .bg-animated {
+            position: fixed; top: 0; left: 0;
+            width: 400vw; height: 400vh;
+            background: linear-gradient(45deg, #0a0a0a, #1a1005, #0a0a0a, #051a10, #0a0a0a);
+            background-size: 400% 400%;
+            animation: bgShift 20s ease infinite;
+            z-index: -2;
+        }
+        @keyframes bgShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         /* === ЗОЛОТАЯ ПОДСВЕТКА КУРСОРА === */
         .cursor-glow {
             position: fixed;
-            width: 250px; height: 250px;
+            width: 300px; height: 300px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(212, 175, 55, 0.2) 0%, rgba(0, 0, 0, 0) 70%);
-            pointer-events: none;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.25) 0%, rgba(0, 0, 0, 0) 70%);
+            pointer-events: none; /* Не мешает кликать */
             transform: translate(-50%, -50%);
             z-index: 9999;
             mix-blend-mode: screen;
+            transition: left 0.05s ease-out, top 0.05s ease-out; /* Плавное следование */
         }
 
         /* === НАВИГАЦИЯ === */
@@ -37,63 +52,62 @@
             padding: 20px 50px;
             display: flex; justify-content: space-between; align-items: center;
             z-index: 100;
-            background: linear-gradient(to bottom, rgba(10,10,10,0.9), transparent);
+            background: linear-gradient(to bottom, rgba(10,10,10,0.95), transparent);
         }
         .nav-logo { color: #D4AF37; font-size: 1.8rem; font-weight: 800; letter-spacing: 2px; }
         .nav-links { display: flex; gap: 30px; }
-        .nav-links a { color: #ccc; text-decoration: none; transition: color 0.3s; cursor: none; }
+        .nav-links a { color: #ccc; text-decoration: none; transition: color 0.3s; }
         .nav-links a:hover { color: #D4AF37; }
 
         /* === СЕКЦИИ === */
-        section { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 100px 10%; position: relative; }
+        section { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 100px 10%; position: relative; z-index: 1; }
         .section-title { font-size: 2.5rem; margin-bottom: 60px; text-transform: uppercase; letter-spacing: 4px; color: #fff; text-align: center; }
         .section-title span { color: #D4AF37; }
 
         /* === ГЛАВНЫЙ ЭКРАН === */
         .hero {
-            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1542362567-b07e54358353') center/cover no-repeat;
             justify-content: flex-end; padding-bottom: 15vh;
         }
-        .hero h1 { font-size: 5rem; color: #fff; letter-spacing: 5px; margin-bottom: 20px; opacity: 0; animation: fadeUp 1s ease forwards; }
+        .hero h1 { font-size: 5rem; color: #fff; letter-spacing: 5px; margin-bottom: 20px; opacity: 0; animation: fadeUp 1s ease forwards; text-shadow: 0 0 20px rgba(212, 175, 55, 0.3); }
         .hero p { font-size: 1.4rem; color: #aaa; margin-bottom: 40px; opacity: 0; animation: fadeUp 1s ease 0.3s forwards; }
         .btn-gold {
             padding: 15px 40px; background: transparent; border: 2px solid #D4AF37; color: #D4AF37;
             font-size: 1.1rem; text-transform: uppercase; letter-spacing: 2px; text-decoration: none;
-            transition: all 0.4s; cursor: none; opacity: 0; animation: fadeUp 1s ease 0.6s forwards;
+            transition: all 0.4s; opacity: 0; animation: fadeUp 1s ease 0.6s forwards; display: inline-block;
         }
-        .btn-gold:hover { background: #D4AF37; color: #0a0a0a; }
+        .btn-gold:hover { background: #D4AF37; color: #0a0a0a; box-shadow: 0 0 20px rgba(212, 175, 55, 0.4); }
 
         @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } from { opacity: 0; transform: translateY(20px); } }
 
         /* === УСЛУГИ === */
         .services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; width: 100%; max-width: 1200px; }
         .service-card {
-            background: rgba(255, 255, 255, 0.03); border: 1px solid #222; border-radius: 8px; padding: 40px 30px; text-align: center;
-            transition: all 0.4s ease; opacity: 0; transform: translateY(30px);
+            background: rgba(20, 20, 20, 0.6); border: 1px solid #333; border-radius: 8px; padding: 40px 30px; text-align: center;
+            transition: all 0.4s ease; opacity: 0; transform: translateY(30px); backdrop-filter: blur(5px);
         }
-        .service-card.visible { opacity: 1; transform: translateY(0); }
-        .service-card:hover { border-color: #D4AF37; transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.5); }
-        .service-icon { font-size: 3rem; margin-bottom: 20px; color: #D4AF37; }
-        .service-name { font-size: 1.5rem; margin-bottom: 15px; color: #fff; }
+       &nbsp;.service-card.visible { opacity: 1; transform: translateY(0); }
+        .service-card:hover { border-color: #D4AF37; transform: translateY(-10px); box-shadow: 0 15px 30px rgba(212, 175, 55, 0.1); }
+        .service-icon { font-size: 3rem; margin-bottom: 20px; color: #D4AF377; }
+        .service-name { font-size:' 1.5rem; margin-bottom: 15px; color: #fff; }
         .service-desc { color: #888; line-height: 1.5; }
 
         /* === ГАЛЕРЕЯ === */
-        .gallery-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; width: 100%; max-width: 1000px; }
-        .gallery-item { position: relative; overflow: hidden; border-radius: 8px; aspect-ratio: 16/10; border: 1px solid #222; }
+        .gallery-grid { display: grid; grid-template-columns: repeat.2, 1* 1fr); gap: 20px; width: 100%; max-width: 1000px; }
+        .gallery-item { position: relative; overflow: hidden; border-radius: 8px; aspect-ratio: 16/10; border: 1px solid #333; }
         .gallery-item img { width: 100%; height: 100%; object-fit: cover; opacity: 0.6; transition: opacity 0.4s, transform 0.6s; }
         .gallery-item:hover img { opacity: 1; transform: scale(1.05); }
 
         /* === ФОРМА === */
-        .booking-container { width: 100%; max-width: 600px; background: rgba(20, 20, 20, 0.8); backdrop-filter: blur(10px); border: 1px solid #333; border-radius: 12px; padding: 40px; }
+        .booking-container { width: 100%; max-widthG-width: 600px; background: rgba(20, 20, 20, 0.7); backdrop-filter: blur(10px); border: 1px solid #333; border-radius: 12px; padding: 40px; }
         .form-group { margin-bottom: 20px; text-align: left; }
         .form-group label { display: block; margin-bottom: 8px; color: #aaa; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; }
-        .form-input { width: 100%; padding: 15px; background: rgba(255,255,255,0.05); border: 1px solid #333; border-radius: 4px; color: #fff; font-size: 1rem; outline: none; transition: border-color 0.3s; cursor: none; }
+        .form-input { width: 100%; padding: 15pxE; background: rgba(255,255,255,0.05); border: 1px solid #444;C border-radius: 4px; color: #fff; font-size: 1rem; outline: none; transition: border-color 0.3s; }
         .form-input:focus { border-color: #D4AF37; }
-        .submit-btn { width: 100%; padding: 15px; background: #D4AF37; color: #0a0a0a; border: none; border-radius: 4px; font-size: 1.1rem; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; cursor: none; transition: background 0.3s; }
+        .submit-btn { width: 100%; padding: 15px; background: #D4AF37; color: #0a0a0a; border: none; border-radius: 4px; font-size: 1B.1rem; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; transition: background 0.3s; }
         .submit-btn:hover { background: #f1c40f; }
 
         @media (max-width: 768px) {
-            .services-grid { grid-template-columns: 1fr; }
+            .services-grid { grid-template-columns: 1fr;5 }
             .hero h1 { font-size: 3rem; }
             nav { padding: 15px 20px; }
         }
@@ -101,20 +115,21 @@
 </head>
 <body>
 
+    <div class="bg-animated"></div>
     <div class="cursor-glow" id="cursor-glow"></div>
 
     <nav>
         <div class="nav-logo">APEX</div>
         <div class="nav-links">
             <a href="#services">Услуги</a>
-            <a href="#gallery">Работы</a>
+            <a href="#gallery">Работ%F</a>
             <a href="#booking">Запись</a>
         </div>
     </nav>
 
     <section class="hero" id="home">
         <h1>Искусство Детейлинга</h1>
-        <p>Вернем вашему автомобилю первозданный блеск</p>
+        <p>Вернем вашему автомобилю=первозданный блеск</p>
         <a href="#booking" class="btn-gold">Забронировать</a>
     </section>
 
@@ -125,9 +140,9 @@
                 <div class="service-icon">✦</div>
                 <h3 class="service-name">Полировка</h3>
                 <p class="service-desc">Удаление царапин, голограмм и восстановление лакокрасочного покрытия до зеркального блеска.</p>
-            </div>
+D           </div>
             <div class="service-card">
-                <div class="service-icon">◈</div>
+                <div class="serviceA service-icon">◈</div>
                 <h3 class="service-name">Нанокерамика</h3>
                 <p class="service-desc">Многослойная защита кузова на основе диоксида кремния. Эффект самоочистки до 5 лет.</p>
             </div>
@@ -142,10 +157,10 @@
     <section id="gallery">
         <h2 class="section-title">Наши <span>Работы</span></h2>
         <div class="gallery-grid">
-            <div class="gallery-item"><img src="https://images.unsplash.com/photo-1619762615518-46c1ce20c2e6" alt="Work 1"></div>
-            <div class="gallery-item"><img src="https://images.unsplash.com/photo-1503737798297-7c579a56c2bd" alt="Work 2"></div>
-            <div class="gallery-item"><img src="https://images.unsplash.com/photo-1580273916550-9e547e9c9e9c" alt="Work 3"></div>
-            <div class="gallery-item"><img src="https://images.unsplash.com/photo-1492145394975-87e7ca41a2e2" alt="Work 4"></div>
+            <div class="gallery-item"><img src="https://images.unsplash.com/photo-1619762615518-46c1ce20c2e6?auto=format&fit=crop&w=800&q=80" alt="Work 1"></div>
+            <div class="gallery-item"><img src="https://images.unsplash.com/photo-1503737798297-7c579a56c2bd?auto=format&fit=crop&w=800&q=80" alt="Work 2"></div>
+            <div class="gallery-item"><img src="https://images.pexels.com/photos/3802510/pexels-photo-3802510.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Work 3"></div>
+            <div class="gallery-item"><img src="https://images.pexels.com/photos/3735376/pexels-photo-3735376.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Work 4"></div>
         </div>
     </section>
 
@@ -176,7 +191,7 @@
     </section>
 
     <script>
-        // 1. Курсор
+        // 1. Плавная подсветка курсора
         const glow = document.getElementById('cursor-glow');
         document.addEventListener('mousemove', (e) => {
             glow.style.left = e.clientX + 'px';
@@ -190,11 +205,11 @@
                     entry.target.classList.add('visible');
                 }
             });
-        }, { threshold: 0.2 });
+        }, { threshold: 0.1 });
 
         document.querySelectorAll('.service-card').forEach(card => observer.observe(card));
 
-        // 3. Безопасная обработка формы (Sanitization из репозитория безопасности)
+        // 3. Безопасная обработка формы (Sanitization)
         function sanitize(str) {
             return str.replace(/</g, "<").replace(/>/g, ">").replace(/"/g, """);
         }
